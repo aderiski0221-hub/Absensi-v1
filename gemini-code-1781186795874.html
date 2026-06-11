@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi SMPN 2 Sukaratu</title>
+    <!-- Library QR Scanner -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        :root {
+            --blue: #2563EB;
+            --yellow: #FDE047;
+            --dark: #1E293B;
+            --light-blue: #EFF6FF;
+            --border-style: 3px solid #1E293B;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--yellow);
+            color: var(--dark);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: white;
+            border-radius: 28px;
+            padding: 25px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 8px 8px 0px var(--dark);
+            border: var(--border-style);
+            box-sizing: border-box;
+            margin: 20px 0;
+        }
+        .badge {
+            background-color: var(--blue);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            border: 2px solid var(--dark);
+        }
+        h1 {
+            color: var(--dark);
+            font-size: 26px;
+            margin: 0 0 5px 0;
+            font-weight: 800;
+        }
+        p.subtitle {
+            color: #64748B;
+            font-size: 14px;
+            margin: 0 0 20px 0;
+        }
+        select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 16px;
+            border: var(--border-style);
+            font-size: 16px;
+            margin-bottom: 15px;
+            outline: none;
+            font-weight: bold;
+            color: var(--blue);
+            background-color: var(--light-blue);
+            cursor: pointer;
+        }
+        #reader {
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 3px dashed var(--blue) !important;
+            background-color: #fafafa;
+        }
+        /* Style untuk tombol bergaya Neo-brutalism Gen Z */
+        .btn {
+            width: 100%;
+            color: var(--dark);
+            border: var(--border-style);
+            padding: 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px var(--dark);
+            transition: all 0.1s ease;
+            margin-bottom: 12px;
+        }
+        .btn-download { background-color: var(--blue); color: white; }
+        .btn-clear { background-color: #F87171; color: white; }
+        .btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 1px 1px 0px var(--dark);
+        }
+        
+        /* Tampilan Riwayat Absensi yang Estetik */
+        .history-section {
+            margin-top: 25px;
+            text-align: left;
+            border-top: 2px dashed #CBD5E1;
+            padding-top: 20px;
+        }
+        .history-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: var(--dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        /* Style Card Siswa */
+        .history-card {
+            background-color: var(--light-blue);
+            border: 2px solid var(--dark);
+            border-radius: 14px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 2px 2px 0px var(--dark);
+            animation: slideIn 0.3s ease;
+        }
+        .card-info h4 {
+            margin: 0 0 4px 0;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        .card-info span {
+            font-size: 12px;
+            color: #64748B;
+        }
+        .card-class {
+            background-color: var(--yellow);
+            border: 2px solid var(--dark);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        /* Custom Scrollbar biar rapi */
+        .history-list::-webkit-scrollbar { width: 6px; }
+        .history-list::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <center><div class="badge">🏫 SMPN 2 SUKARATU</div></center>
+    <h1>ABSENSI DIGITAL</h1>
+    <p class="subtitle">Pilih kelas, lalu arahkan QR Code ke kamera!</p>
+
+    <!-- Dropdown Kelas -->
+    <select id="kelas">
+        <option value="" disabled selected>⚡ PILIH KELAS KAMU</option>
+        <optgroup label="KELAS 7">
+            <option value="7A">7A</option> <option value="7B">7B</option> <option value="7C">7C</option>
+            <option value="7D">7D</option> <option value="7E">7E</option> <option value="7F">7F</option>
+        </optgroup>
+        <optgroup label="KELAS 8">
+            <option value="8A">8A</option> <option value="8B">8B</option> <option value="8C">8C</option>
+            <option value="8D">8D</option> <option value="8E">8E</option> <option value="8F">8F</option>
+        </optgroup>
+        <optgroup label="KELAS 9">
+            <option value="9A">9A</option> <option value="9B">9B</option> <option value="9C">9C</option>
+            <option value="9D">9D</option> <option value="9E">9E</option> <option value="9F">9F</option>
+        </optgroup>
+    </select>
+
+    <!-- Kamera Scanner -->
+    <div id="reader"></div>
+
+    <!-- Tombol Kontrol -->
+    <button class="btn btn-download" onclick="downloadExcel()">📥 REKAP DATA (DOWNLOAD EXCEL)</button>
+    <button class="btn btn-clear" onclick="hapusData()">🗑️ RESET SEMUA DATA</button>
+    
+    <!-- Bagian Riwayat Hasil Scan Estetik -->
+    <div class="history-section">
+        <div class="history-title">
+            <span>✨ Siswa Masuk Hari Ini</span>
+            <span style="color: var(--blue);" id="totalData">0 Anak</span>
+        </div>
+        <div class="history-list" id="historyContainer">
+            <!-- Data card akan muncul di sini secara otomatis -->
+        </div>
+    </div>
+</div>
+
+<script>
+    let isProcessing = false;
+
+    // FUNGSI SUARA (Menggunakan Web Audio API - Tanpa File Luar)
+    function playBeep(type) {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        if (type === 'success') {
+            // Suara beep tinggi, ceria & pendek (Sukses)
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // Nada A5
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            oscillator.stop(audioCtx.currentTime + 0.15);
+        } else if (type === 'error') {
+            // Suara buzzer rendah & agak panjang (Gagal/Error)
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(180, audioCtx.currentTime); // Nada Bass Rendah
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            oscillator.stop(audioCtx.currentTime + 0.3);
+        }
+    }
+
+    // Fungsi Mengupdate Tampilan Riwayat di Halaman Web
+    function renderHistory() {
+        let dataLokal = JSON.parse(localStorage.getItem('dataAbsensi') || '[]');
+        document.getElementById('totalData').innerText = `${dataLokal.length} Anak`;
+        
+        const container = document.getElementById('historyContainer');
+        container.innerHTML = ''; // Kosongkan list lama
+
+        if(dataLokal.length === 0) {
+            container.innerHTML = `<p style="color:#94A3B8; font-size:13px; text-align:center; margin-top:15px;">Belum ada siswa yang absen.</p>`;
+            return;
+        }
+
+        // Tampilkan dari data yang paling baru di-scan (di balik urutannya)
+        dataLokal.slice().reverse().forEach(siswa => {
+            const card = document.createElement('div');
+            card.className = 'history-card';
+            card.innerHTML = `
+                <div class="card-info">
+                    <h4>${siswa.nama}</h4>
+                    <span>🕒 ${siswa.waktu.split(' ')[1] || siswa.waktu}</span>
+                </div>
+                <div class="card-class">${siswa.kelas}</div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // Fungsi Utama Saat QR Berhasil Discan
+    function onScanSuccess(decodedText, decodedResult) {
+        if (isProcessing) return;
+
+        const kelasSelector = document.getElementById('kelas');
+        const kelasDipilih = kelasSelector.value;
+
+        // JIKA BELUM PILIH KELAS -> BUNYI ERROR
+        if (!kelasDipilih) {
+            playBeep('error');
+            alert('Waduh! Pilih kelas dulu dong sebelum scan QR code.');
+            return;
+        }
+
+        isProcessing = true;
+        playBeep('success'); // BUNYI SUKSES
+
+        let dataLokal = JSON.parse(localStorage.getItem('dataAbsensi') || '[]');
+        let waktuSekarang = new Date().toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        
+        let dataBaru = {
+            waktu: new Date().toLocaleString('id-ID'),
+            nama: decodedText,
+            kelas: kelasDipilih
+        };
+
+        dataLokal.push(dataBaru);
+        localStorage.setItem('dataAbsensi', JSON.stringify(dataLokal));
+
+        renderHistory();
+
+        // Jeda waktu 2,5 detik sebelum kamera aktif untuk anak berikutnya
+        setTimeout(() => {
+            isProcessing = false;
+        }, 2500);
+    }
+
+    // Fungsi Ekspor ke File Excel (.CSV)
+    function downloadExcel() {
+        let dataLokal = JSON.parse(localStorage.getItem('dataAbsensi') || '[]');
+        if (dataLokal.length === 0) {
+            playBeep('error');
+            alert('Belum ada data absensi yang bisa di-download!');
+            return;
+        }
+
+        let csvContent = "\uFEFFWaktu Absen,Nama Siswa,Kelas\n";
+        dataLokal.forEach(row => {
+            csvContent += `"${row.waktu}","${row.nama}","${row.kelas}"\n`;
+        });
+
+        let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        let url = URL.createObjectURL(blob);
+        let link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "Absensi_SMPN2_Sukaratu.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Fungsi Hapus Semua Data Riwayat
+    function hapusData() {
+        if (confirm('Yakin ingin menghapus seluruh riwayat absen? Jangan lupa di-download dulu ya!')) {
+            localStorage.removeItem('dataAbsensi');
+            renderHistory();
+            playBeep('success');
+            alert('Data berhasil dibersihkan!');
+        }
+    }
+
+    // Membuka Kamera Scanner secara Otomatis
+    const html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader", { fps: 15, qrbox: {width: 230, height: 230} }, false);
+    html5QrcodeScanner.render(onScanSuccess);
+
+    // Jalankan render history saat web pertama kali dimuat
+    renderHistory();
+</script>
+
+</body>
+</html>
